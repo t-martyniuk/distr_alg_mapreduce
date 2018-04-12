@@ -1,4 +1,6 @@
 import multiprocessing
+import time
+
 
 def my_mapper(array, map_results, left_idx, right_idx):
     """Function that maps every number in the array to the tuple (number, 1).
@@ -25,17 +27,21 @@ def my_reducer(array, reduce_results):
             reduce_results[array[i][0]] += 1
         else:
             reduce_results[array[i][0]] = 1
+    print(reduce_results)
+
 
 #Parallel map implementation
 def parallel_map(array):
     jobs = []
     map_results = multiprocessing.Manager().list([None] * len(array))     #The list that we will be writing to
+    print("Number of mappers is", core_number)
     for i in range(core_number):
         left_idx = split_len * i
         right_idx = split_len * (i + 1)
         p = multiprocessing.Process(target=my_mapper, args=(array, map_results, left_idx, right_idx))
         jobs.append(p)
         p.start()
+
     for p in jobs:
         p.join()
     for p in jobs:
@@ -47,14 +53,17 @@ def parallel_map(array):
 def parallel_reduce(array):
     # The argument array here is list of lists, alread prepared after shuffling for separate reducers.
     jobs = []
-
+    print("Number of reducers is", core_number)
     reduce_results = multiprocessing.Manager().dict()     #The dictionary that we will be writing to
     for i in range(core_number):
         p = multiprocessing.Process(target=my_reducer, args=(array[i], reduce_results))
         jobs.append(p)
         p.start()
+        time.sleep(len(array)*0.5) #a way how to avoid "overlapping" of processes so
+        # that printed dictionary does not fully correspond to the current reducer job
     for p in jobs:
         p.join()
+
     for p in jobs:
         p.terminate()
 
@@ -62,7 +71,8 @@ def parallel_reduce(array):
 
 
 my_array = [1,0,9,8,7,6,5,4, 2, 4, 3, 5, 2, 4, 1, 2]
-print('The array is', my_array)
+
+
 
 core_number = multiprocessing.cpu_count()
 if len(my_array) > core_number:
@@ -72,7 +82,6 @@ else:
     split_len = 1
 
 mapped_list = parallel_map(my_array)
-print('The result after mapping is', mapped_list)
 
 # Shuffling
 shuffled = [None] * core_number
@@ -83,7 +92,6 @@ for i in range(len(mapped_list)):
     else:
         shuffled[idx].append(mapped_list[i])
 
-print('The result after shuffling is', shuffled)
 
 reduced_dict = parallel_reduce(shuffled)
 
