@@ -61,7 +61,7 @@ def parallel_reduce(array):
     return reduce_results
 
 
-my_array = [2, 4, 3, 5, 2, 4, 1, 2]
+my_array = [1,0,9,8,7,6,5,4, 2, 4, 3, 5, 2, 4, 1, 2]
 print('The array is', my_array)
 
 core_number = multiprocessing.cpu_count()
@@ -85,8 +85,16 @@ for i in range(len(mapped_list)):
 
 print('The result after shuffling is', shuffled)
 
-reduced_list = parallel_reduce(shuffled)
+reduced_dict = parallel_reduce(shuffled)
 
-print('The result after reducing is', reduced_list)
+print('The result after reducing is', reduced_dict)
 
+#Checking whether the number of elements is the same as the sum of numbers in the reduced_dict
+sum = 0
+for key in reduced_dict.keys():
+    sum += reduced_dict[key]
 
+if sum == len(my_array):
+    print("Correct")
+else:
+    print("Incorrect")
