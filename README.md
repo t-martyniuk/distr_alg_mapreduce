@@ -1,6 +1,6 @@
 # Map Reduce emulation.
 
-Task 2 for the Distributed Algorithms course.
+Task 2 for the Distributed Algorithms course at the Master's Program in Data Science at UCU.
 
 ### Create a program that emulates MapReduce via multi-threading. 
 
